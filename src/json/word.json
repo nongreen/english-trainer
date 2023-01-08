@@ -1,11 +1,13 @@
 {
-    "words": [
+    "old_words": [
         {
             "word": "hello",
+            "transcription": "[həˈləʊ]",
             "translate" : "привет"
         },
         {
             "word": "word",
+            "transcription": "[wɜːd]",
             "translate": "слово"
         }
     ]

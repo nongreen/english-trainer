@@ -11,3 +11,6 @@ app.use(express.static("json"))
 app.get("/", (req, res) => {
   res.sendFile(__dirname + "/html/index.html")
 });
+app.get("/dictionary", (req, res) => {
+  res.sendFile(__dirname + "/html/dictionary.html")
+});
