@@ -1,0 +1,12 @@
+{
+    "words": [
+        {
+            "word": "hello",
+            "translate" : "привет"
+        },
+        {
+            "word": "word",
+            "translate": "слово"
+        }
+    ]
+}
