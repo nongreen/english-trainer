@@ -7,6 +7,7 @@ function append_word_button_expand(){
     var form = document.createElement('form')
     form.method = 'POST'
     form.action = '/dictionary/append'
+    form.autocomplete = "off"
 
     // word_input
     var word_input = document.createElement('input')
