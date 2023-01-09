@@ -14,7 +14,7 @@ function display_table(parent, word_list, id_prefix=''){
     header_row.id = id_prefix + '_table_header_row'
 
     // Filling of header row
-    const table_headers = ['Word', 'Transcription', 'Translate']
+    const table_headers = ['Word', 'Transcription', 'Translate', 'edit']
     table_headers.forEach(element => {
         var header_column = document.createElement('th')
         header_column.innerText = element
@@ -24,20 +24,27 @@ function display_table(parent, word_list, id_prefix=''){
     table.appendChild(header_row)
 
     // Filling table by words
-    word_list.forEach(word => {
-        word_row = document.createElement('tr')
+    word_list.forEach(function(word, i) {
+        var word_row = document.createElement('tr')
 
-        word_column = document.createElement('th')
+        var word_column = document.createElement('th')
         word_column.innerText = word.word
         word_row.appendChild(word_column)
         
-        word_column = document.createElement('th')
+        var word_column = document.createElement('th')
         word_column.innerText = word.transcription
         word_row.appendChild(word_column)
 
-        word_column = document.createElement('th')
+        var word_column = document.createElement('th')
         word_column.innerText = word.translate
         word_row.appendChild(word_column)
+
+        // edit_button
+        var edit_button = document.createElement('a')
+        edit_button.onclick = edit_word_button_onclick
+        edit_button.innerText = "Edit"
+        edit_button.id = id_prefix + "edit_button_" + String(i)
+        word_row.appendChild(edit_button)
 
         table.appendChild(word_row)
     })
@@ -55,11 +62,11 @@ fetch('word.json')
 
         if (json.new_words.length != 0){
             document.body.appendChild(new_words_p)
-            display_table(document.body, json.new_words, 'new_words')
+            display_table(document.body, json.new_words, new_words_id_prefix)
         }
 
         if (json.old_words.length != 0){
             document.body.appendChild(old_words_p)
-            display_table(document.body, json.old_words, 'old_words')
+            display_table(document.body, json.old_words, old_words_id_prefix)
         }
     });
