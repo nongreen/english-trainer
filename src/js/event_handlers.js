@@ -192,6 +192,119 @@ function edit_word_cancel_button_onclick(){
     block.appendChild(append_word_button)
 }
 
+// main_checkbox_onchange syncs main checkbox with child checkboxes and appends or deletes 'delete_button'
+// if it's need
+function main_checkbox_onchange(event){
+    var main_checkbox = event.target
+    var main_checkbox_prefix = getCheckBoxPrefix(main_checkbox.id) 
+    if (main_checkbox_prefix === null) return
+
+    var child_checkboxes = document.getElementsByClassName(main_checkbox_prefix + '_word_checkbox')
+    for (var i = 0; i < child_checkboxes.length; i++){
+        var checkbox = child_checkboxes.item(i)
+        checkbox.checked = main_checkbox.checked
+    }
+
+    // Check having delete button and appending or deleting it
+    var delete_button = document.getElementById("delete_word_button")
+    var haveCheckedCheckboxes = checkCheckedCheckboxes("new_words") | checkCheckedCheckboxes("old_words")
+    if (haveCheckedCheckboxes & delete_button === null){
+        delete_button = createDeleteButton()
+        append_word_block = document.getElementById("append_word")
+        document.body.insertBefore(delete_button, append_word_block)
+        return
+    }
+    if (!haveCheckedCheckboxes & delete_button != null){
+        delete_button.remove()
+        return
+    }
+}
+
+// word_checkbox_onchange appends or deletes 'delete_button' if it's need
+function word_checkbox_onchange(event){
+    var word_checkbox_id = event.target.id
+    var word_checkbox_prefix = getCheckBoxPrefix(word_checkbox_id)
+    var delete_button = document.getElementById("delete_word_button")
+    var haveCheckedCheckboxes = checkCheckedCheckboxes("new_words") | checkCheckedCheckboxes("old_words")
+    if (haveCheckedCheckboxes & delete_button === null) {
+        delete_button = createDeleteButton()
+        append_word_block = document.getElementById("append_word")
+        document.body.insertBefore(delete_button, append_word_block)
+        return
+    }
+    if (!haveCheckedCheckboxes & delete_button != null) {
+        delete_button.remove()
+        return
+    }
+}
+
+// delete_button_onclick gets deleting words list and send POST request to server on delete
+function delete_button_onclick(){
+    var deleting_new_words = getDeletingWords('new_words')
+    var deleting_old_words = getDeletingWords('old_words')
+    var json = {
+        deleting_new_words: deleting_new_words,
+        deleting_old_words: deleting_old_words
+    }
+    fetch('/dictionary/delete', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(json)
+    }).then(() => {
+        location.reload()
+    })
+}
+
+// checkCheckedCheckboxes checks list of checkboxes on checked state and returns true if
+// even one is true, and false if anyone haven't checked state
+function checkCheckedCheckboxes(class_prefix){
+    var checkboxes = document.getElementsByClassName(class_prefix + '_word_checkbox')
+    for (var i = 0; i < checkboxes.length; i++){
+        if (checkboxes.item(i).checked) return true
+    }
+    return false
+}
+
+// getDeletingWords get all checkboxes with current class_prefix and return its ID
+function getDeletingWords(class_prefix){
+    var checkboxes = document.getElementsByClassName(class_prefix + '_word_checkbox')
+    var deletingWords = []
+
+    for (var i = 0; i < checkboxes.length; i++){
+        var checkbox = checkboxes.item(i)
+        if (checkbox.checked){
+            var wordID = getCheckBoxElementID(checkbox.id)
+            deletingWords.push(wordID)
+        }
+    }
+
+    return deletingWords
+}
+
+// getMainCheckBoxPrefix analyzes main_checkbox_id(string) and returns prefix of word(string)
+function getCheckBoxPrefix(main_checkbox_id){
+    if (main_checkbox_id.includes(new_words_id_prefix)){
+        return new_words_id_prefix
+    }
+    if (main_checkbox_id.includes(old_words_id_prefix)){
+        return old_words_id_prefix
+    }
+    return ""
+}
+
+// getCheckBoxElementID analyzes check_box_id(string) and returns id of word(int)
+function getCheckBoxElementID(check_box_id){
+    re = /\d+$/
+    result = re.exec(check_box_id)
+    if (result.length == 1){
+        return parseInt(result[0])
+    }
+    return null
+}
+
 // getEditButtonPrefix analyzes edit_button_id(string) and returns prefix of word(string)
 function getEditButtonPrefix(edit_button_id){
     if (edit_button_id.includes(new_words_id_prefix)){
@@ -211,4 +324,14 @@ function getEditButtonElementID(edit_button_id){
         return parseInt(result[0])
     }
     return null
+}
+
+// createDeleteButton creates, prepares and returns delete_button
+function createDeleteButton(){
+    var delete_button = document.createElement('button')
+    delete_button.id = 'delete_word_button'
+    delete_button.type = 'button'
+    delete_button.innerText = 'Delete selected words'
+    delete_button.onclick = delete_button_onclick
+    return delete_button
 }
